@@ -34,10 +34,10 @@ class ConectarDB:
         else:
             print('\n[!] Tabela criada com sucesso [!]\n')
 
-    def inserir_registro(self, VIM, MODEL, PRODUTO, ANOFABRICACAO, CODCONTA, DESCRCONTA, CPF_CNPJ, CLIENTE, CEP, CIDADE, UF, DDD, TELEFONE, POSSE, DATA):
+    def inserir_registro(self, VIN, MODEL, PRODUTO, ANOFABRICACAO, CODCONTA, DESCRCONTA, CPF_CNPJ, CLIENTE, CEP, CIDADE, UF, DDD, TELEFONE, POSSE, DATA):
         try:
             self.cur.execute(
-                '''INSERT INTO NomeDaTabela VALUES (?, ?, ?)''', (VIM, MODEL, PRODUTO, ANOFABRICACAO, CODCONTA, DESCRCONTA, CPF_CNPJ, CLIENTE, CEP, CIDADE, UF, DDD, TELEFONE, POSSE, DATA,))
+                '''INSERT INTO NomeDaTabela VALUES (?, ?, ?)''', (VIN, MODEL, PRODUTO, ANOFABRICACAO, CODCONTA, DESCRCONTA, CPF_CNPJ, CLIENTE, CEP, CIDADE, UF, DDD, TELEFONE, POSSE, DATA,))
         except Exception as e:
             print('\n[x] Falha ao inserir registro [x]\n')
             print('[x] Revertendo operação (rollback) %s [x]\n' % e)
@@ -133,7 +133,7 @@ class Janela(tk.Frame):
         label_recebido.grid(row=2, column=4)
 
         label_recebido = tk.Label(frame1, text='UF')
-        label_recebido.grid(row=4, column=5)
+        label_recebido.grid(row=2, column=5)
 
         label_recebido = tk.Label(frame1, text='DDD')
         label_recebido.grid(row=4, column=1)
@@ -179,7 +179,7 @@ class Janela(tk.Frame):
         self.entry_cidade.grid(row=3, column=4)
 
         self.entry_uf = tk.Entry(frame1)
-        self.entry_uf.grid(row=6, column=5)
+        self.entry_uf.grid(row=3, column=5)
 
         self.entry_ddd = tk.Entry(frame1)
         self.entry_ddd.grid(row=6, column=1)
@@ -200,7 +200,7 @@ class Janela(tk.Frame):
         button_adicionar.grid(row=7, column=6, rowspan=2, padx=10)
 
         # Treeview.
-        self.treeview = tkk.Treeview(frame2, columns=('Vin', 'Model', 'Produto', 'Ano fabricação', 'Cod. Conta', 'Descrição Conta', 'Cpf/Cnpj', 'Cliente', 'Cep', 'Cidade', 'UF', 'DDD', 'Telefone', 'Posse', 'data'))
+        self.treeview = tkk.Treeview(frame2, columns=('Vin', 'Model', 'Produto', 'Ano fabricação', 'Cod. Conta', 'Descrição Conta', 'Cpf/Cnpj', 'Cliente', 'Cep', 'Cidade', 'UF', 'DDD', 'Telefone', 'Posse', 'Data'))
         self.treeview.heading('#0', text='ID')
         self.treeview.heading('#1', text='Vin')
         self.treeview.heading('#2', text='Model')
@@ -216,7 +216,7 @@ class Janela(tk.Frame):
         self.treeview.heading("#12", text="DDD")
         self.treeview.heading("#13", text="Telefone")
         self.treeview.heading("#14", text="Posse")
-        self.treeview.heading("#15", text="data")
+        self.treeview.heading("#15", text="Data")
 
         # Inserindo os dados do banco no treeview.
         for row in self.banco.consultar_registros():
@@ -249,12 +249,12 @@ class Janela(tk.Frame):
         data = self.entry_posse.get()
         
         # Validação simples (utilizar datetime deve ser melhor para validar).
-        validar_data = re.search(r'(..)/(..)/(....)', data)
+        validar_data = re.search(r'(..)(..)(....)', data)
 
         # Se a data digitada passar na validação
         if validar_data:
             # Dados digitando são inseridos no banco de dados
-            self.banco.inserir_registro(VIM=vin, MODEL=model, PRODUTO=produto, ANOFABRICACAO=anofabricacao, CODCONTA=codconta, DESCRCONTA=descconta, CPF_CNPJ=cpf_cnpj, CLIENTE=cliente, CEP=cep, CIDADE=cidade, UF=uf, DDD=ddd, TELEFONE=telefone, POSSE=posse, DATA=data)
+            self.banco.inserir_registro(VIN=vin, MODEL=model, PRODUTO=produto, ANOFABRICACAO=anofabricacao, CODCONTA=codconta, DESCRCONTA=descconta, CPF_CNPJ=cpf_cnpj, CLIENTE=cliente, CEP=cep, CIDADE=cidade, UF=uf, DDD=ddd, TELEFONE=telefone, POSSE=posse, DATA=data)
 
             # Coletando a ultima rowid que foi inserida no banco.
             rowid = self.banco.consultar_ultimo_rowid()[0]
