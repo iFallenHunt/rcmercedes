@@ -14,7 +14,7 @@ class ConectarDB:
     def criar_tabela(self):
         try:
             self.cur.execute('''CREATE TABLE IF NOT EXISTS Recall (
-                VIM TEXT,
+                VIN TEXT,
                 MODEL TEXT,
                 DATA TEXT,                
                 PRODUTO TEXT,
