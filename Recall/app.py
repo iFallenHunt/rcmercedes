@@ -14,21 +14,21 @@ class ConectarDB:
     def criar_tabela(self):
         try:
             self.cur.execute('''CREATE TABLE IF NOT EXISTS Recall (
-                vin TEXT,
-                model TEXT,
-                data TEXT,                
-                produto TEXT,
-                ano_fabricacao TEXT,
-                codconta TEXT,
-                descrconta TEXT,
-                cpf_cnpj TEXT,
-                cliente TEXT,
-                cep TEXT,
-                cidade TEXT,
-                uf TEXT,
-                ddd TEXT,
-                telefone TEXT,
-                posse TEXT)''')
+                VIM TEXT,
+                MODEL TEXT,
+                DATA TEXT,                
+                PRODUTO TEXT,
+                A_FABRICACAO TEXT,
+                CODCONTA TEXT,
+                DESCRCONTA TEXT,
+                CPF_CNPJ TEXT,
+                CLIENTE TEXT,
+                CEP TEXT,
+                CIDADE TEXT,
+                UF TEXT,
+                DDD TEXT,
+                TELEFONE TEXT,
+                POSSE TEXT)''')
         except Exception as e:
             print('[x] Falha ao criar tabela: %s [x]' % e)
         else:
@@ -37,7 +37,7 @@ class ConectarDB:
     def inserir_registro(self, vin, model, data, produto, anofabricacao, codconta, descrconta, cpf_cnpj, cliente, cep, cidade, uf, ddd, telefone, posse):
         try:
             self.cur.execute(
-                '''INSERT INTO Recall VALUES (?, ?, ?)''', (vin, model, data, produto, anofabricacao, codconta, descrconta, cpf_cnpj, cliente, cep, cidade, uf, ddd, telefone, posse,))
+                '''INSERT INTO Recall VALUES (?, ?, ?, ? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,?)''', (vin, model, data, produto, anofabricacao, codconta, descrconta, cpf_cnpj, cliente, cep, cidade, uf, ddd, telefone, posse,))
         except Exception as e:
             print('\n[x] Falha ao inserir registro [x]\n')
             print('[x] Revertendo operação (rollback) %s [x]\n' % e)
@@ -202,14 +202,14 @@ class Janela(tk.Frame):
 
         # Treeview.
         self.treeview = tkk.Treeview(frame2, columns=('Vin', 'Model', 'Data', 'Produto', 'Ano fabricação', 'Cod. Conta', 'Descrição Conta', 'Cpf/Cnpj', 'Cliente', 'Cep', 'Cidade', 'UF', 'DDD', 'Telefone', 'Posse'))
-        self.treeview.heading("#0", text="ID")
-        self.treeview.heading("#1", text="Vin")
-        self.treeview.heading("#2", text="Model")
-        self.treeview.heading("#3", text="Data")
-        self.treeview.heading("#4", text="Produto")
-        self.treeview.heading("#5", text="Ano fabricação")
-        self.treeview.heading("#6", text="Cod. Conta")
-        self.treeview.heading("#7", text="Descrição Conta")
+        self.treeview.heading('#0', text='ID')
+        self.treeview.heading('#1', text='Vin')
+        self.treeview.heading('#2', text='Model')
+        self.treeview.heading('#3', text='Data')
+        self.treeview.heading('#4', text='Produto')
+        self.treeview.heading('#5', text='Ano fabricação')
+        self.treeview.heading('#6', text='Cod. Conta')
+        self.treeview.heading('#7', text='Descrição Conta')
         self.treeview.heading("#8", text="Cpf/Cnpj")
         self.treeview.heading("#9", text="Cliente")
         self.treeview.heading("#10", text="Cep")
@@ -248,7 +248,7 @@ class Janela(tk.Frame):
         ddd = self.entry_ddd.get()
         telefone = self.entry_telefone.get()
         posse = self.entry_posse.get()
-        
+
         # Validação simples (utilizar datetime deve ser melhor para validar).
         validar_data = re.search(r'(..)/(..)/(....)', data)
 
@@ -261,10 +261,10 @@ class Janela(tk.Frame):
             rowid = self.banco.consultar_ultimo_rowid()[0]
 
             # Adicionando os novos dados no treeview.
-            self.treeview.insert('', 'end', text=rowid, values=(vin, model, produto, anofabricacao, codconta, descrconta, cpf_cnpj, cliente, cep, cidade, uf, ddd, telefone, posse, data))
+            self.treeview.insert('', 'end', text=rowid, values=(vin, model, data, produto, anofabricacao, codconta, descrconta, cpf_cnpj, cliente, cep, cidade, uf, ddd, telefone, posse))
         else:
             # Caso a data não passe na validação é exibido um alerta.
-            messagebox.showerror('Erro', 'Padrão de data incorreto, utilize dd/mm/yyyy') 
+            messagebox.showerror('Erro', 'Padrão de data incorreto, utilize dd/mm/yyyy')
 
     def excluir_registro(self):
         # Verificando se algum item está selecionado.
