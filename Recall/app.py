@@ -13,13 +13,14 @@ class ConectarDB:
 
     def criar_tabela(self):
         try:
-            self.cur.execute('''CREATE TABLE IF NOT EXISTS NomeDaTabela (
+            self.cur.execute('''CREATE TABLE IF NOT EXISTS Recall (
                 vin TEXT,
                 model TEXT,
+                data TEXT,                
                 produto TEXT,
                 ano_fabricacao TEXT,
                 codconta TEXT,
-                descconta TEXT,
+                descrconta TEXT,
                 cpf_cnpj TEXT,
                 cliente TEXT,
                 cep TEXT,
@@ -27,17 +28,16 @@ class ConectarDB:
                 uf TEXT,
                 ddd TEXT,
                 telefone TEXT,
-                posse TEXT,
-                data TEXT)''')
+                posse TEXT)''')
         except Exception as e:
             print('[x] Falha ao criar tabela: %s [x]' % e)
         else:
             print('\n[!] Tabela criada com sucesso [!]\n')
 
-    def inserir_registro(self, VIN, MODEL, PRODUTO, ANOFABRICACAO, CODCONTA, DESCRCONTA, CPF_CNPJ, CLIENTE, CEP, CIDADE, UF, DDD, TELEFONE, POSSE, DATA):
+    def inserir_registro(self, vin, model, data, produto, anofabricacao, codconta, descrconta, cpf_cnpj, cliente, cep, cidade, uf, ddd, telefone, posse):
         try:
             self.cur.execute(
-                '''INSERT INTO NomeDaTabela VALUES (?, ?, ?)''', (VIN, MODEL, PRODUTO, ANOFABRICACAO, CODCONTA, DESCRCONTA, CPF_CNPJ, CLIENTE, CEP, CIDADE, UF, DDD, TELEFONE, POSSE, DATA,))
+                '''INSERT INTO Recall VALUES (?, ?, ?)''', (vin, model, data, produto, anofabricacao, codconta, descrconta, cpf_cnpj, cliente, cep, cidade, uf, ddd, telefone, posse,))
         except Exception as e:
             print('\n[x] Falha ao inserir registro [x]\n')
             print('[x] Revertendo operação (rollback) %s [x]\n' % e)
@@ -47,14 +47,14 @@ class ConectarDB:
             print('\n[!] Registro inserido com sucesso [!]\n')
 
     def consultar_registros(self):
-        return self.cur.execute('SELECT rowid, * FROM NomeDaTabela').fetchall()
+        return self.cur.execute('SELECT rowid, * FROM Recall').fetchall()
 
     def consultar_ultimo_rowid(self):
-        return self.cur.execute('SELECT MAX(rowid) FROM NomeDaTabela').fetchone()
+        return self.cur.execute('SELECT MAX(rowid) FROM Recall').fetchone()
 
     def remover_registro(self, rowid):
         try:
-            self.cur.execute("DELETE FROM NomeDaTabela WHERE rowid=?", (rowid,))
+            self.cur.execute("DELETE FROM Recall WHERE rowid=?", (rowid,))
         except Exception as e:
             print('\n[x] Falha ao remover registro [x]\n')
             print('[x] Revertendo operação (rollback) %s [x]\n' % e)
@@ -105,8 +105,11 @@ class Janela(tk.Frame):
         label_documento = tk.Label(frame1, text='Vin')
         label_documento.grid(row=0, column=0)
 
+        label_recebido = tk.Label(frame1, text='Data recebimento')
+        label_recebido.grid(row=2, column=0)
+
         label_assunto = tk.Label(frame1, text='Modelo')
-        label_assunto.grid(row=0, column=1)
+        label_assunto.grid(row=0, column=1)        
 
         label_recebido = tk.Label(frame1, text='Produto')
         label_recebido.grid(row=0, column=2)
@@ -142,18 +145,19 @@ class Janela(tk.Frame):
         label_recebido.grid(row=4, column=2)
 
         label_recebido = tk.Label(frame1, text='Posse')
-        label_recebido.grid(row=4, column=3)
+        label_recebido.grid(row=4, column=3  )
 
-        label_recebido = tk.Label(frame1, text='Data')
-        label_recebido.grid(row=4, column=4)
 
         # Entrada de texto.
         self.entry_vin = tk.Entry(frame1)
         self.entry_vin.grid(row=1, column=0)
 
+        self.entry_data = tk.Entry(frame1)
+        self.entry_data.grid(row=3, column=0)
+
         self.entry_model = tk.Entry(frame1)
         self.entry_model.grid(row=1, column=1, padx=10)
-
+    
         self.entry_produto = tk.Entry(frame1)
         self.entry_produto.grid(row=1, column=2)
 
@@ -163,8 +167,8 @@ class Janela(tk.Frame):
         self.entry_codconta = tk.Entry(frame1)
         self.entry_codconta.grid(row=1, column=4)
 
-        self.entry_descconta = tk.Entry(frame1)
-        self.entry_descconta.grid(row=1, column=5)
+        self.entry_descrconta = tk.Entry(frame1)
+        self.entry_descrconta.grid(row=1, column=5)
 
         self.entry_cpf_cnpj = tk.Entry(frame1)
         self.entry_cpf_cnpj.grid(row=3, column=1)
@@ -190,9 +194,6 @@ class Janela(tk.Frame):
         self.entry_posse = tk.Entry(frame1)
         self.entry_posse.grid(row=6, column=3)
 
-        self.entry_data = tk.Entry(frame1)
-        self.entry_data.grid(row=6, column=4)
-
         # Botão para adicionar um novo registro.
         button_adicionar = tk.Button(frame1, text='Adicionar', bg='blue', fg='white')
         # Método que é chamado quando o botão é clicado.
@@ -200,23 +201,23 @@ class Janela(tk.Frame):
         button_adicionar.grid(row=7, column=6, rowspan=2, padx=10)
 
         # Treeview.
-        self.treeview = tkk.Treeview(frame2, columns=('Vin', 'Model', 'Produto', 'Ano fabricação', 'Cod. Conta', 'Descrição Conta', 'Cpf/Cnpj', 'Cliente', 'Cep', 'Cidade', 'UF', 'DDD', 'Telefone', 'Posse', 'Data'))
-        self.treeview.heading('#0', text='ID')
-        self.treeview.heading('#1', text='Vin')
-        self.treeview.heading('#2', text='Model')
-        self.treeview.heading('#3', text='Produto')
-        self.treeview.heading('#4', text='Ano fabricação')
-        self.treeview.heading('#5', text='Cod. Conta')
-        self.treeview.heading('#6', text='Descrição Conta')
-        self.treeview.heading("#7", text="Cpf/Cnpj")
-        self.treeview.heading("#8", text="Cliente")
-        self.treeview.heading("#9", text="Cep")
-        self.treeview.heading("#10", text="Cidade")
-        self.treeview.heading("#11", text="UF")
-        self.treeview.heading("#12", text="DDD")
-        self.treeview.heading("#13", text="Telefone")
-        self.treeview.heading("#14", text="Posse")
-        self.treeview.heading("#15", text="Data")
+        self.treeview = tkk.Treeview(frame2, columns=('Vin', 'Model', 'Data', 'Produto', 'Ano fabricação', 'Cod. Conta', 'Descrição Conta', 'Cpf/Cnpj', 'Cliente', 'Cep', 'Cidade', 'UF', 'DDD', 'Telefone', 'Posse'))
+        self.treeview.heading("#0", text="ID")
+        self.treeview.heading("#1", text="Vin")
+        self.treeview.heading("#2", text="Model")
+        self.treeview.heading("#3", text="Data")
+        self.treeview.heading("#4", text="Produto")
+        self.treeview.heading("#5", text="Ano fabricação")
+        self.treeview.heading("#6", text="Cod. Conta")
+        self.treeview.heading("#7", text="Descrição Conta")
+        self.treeview.heading("#8", text="Cpf/Cnpj")
+        self.treeview.heading("#9", text="Cliente")
+        self.treeview.heading("#10", text="Cep")
+        self.treeview.heading("#11", text="Cidade")
+        self.treeview.heading("#12", text="UF")
+        self.treeview.heading("#13", text="DDD")
+        self.treeview.heading("#14", text="Telefone")
+        self.treeview.heading("#15", text="Posse")
 
         # Inserindo os dados do banco no treeview.
         for row in self.banco.consultar_registros():
@@ -234,10 +235,11 @@ class Janela(tk.Frame):
         # Coletando os valores.
         vin = self.entry_vin.get()
         model = self.entry_model.get()
+        data = self.entry_data.get()
         produto = self.entry_produto.get()
         anofabricacao = self.entry_anofabricacao.get()
         codconta = self.entry_codconta.get()
-        descconta = self.entry_descconta.get()
+        descrconta = self.entry_descrconta.get()
         cpf_cnpj = self.entry_cpf_cnpj.get()
         cliente = self.entry_cliente.get()
         cep = self.entry_cep.get()
@@ -246,24 +248,23 @@ class Janela(tk.Frame):
         ddd = self.entry_ddd.get()
         telefone = self.entry_telefone.get()
         posse = self.entry_posse.get()
-        data = self.entry_posse.get()
         
         # Validação simples (utilizar datetime deve ser melhor para validar).
-        validar_data = re.search(r'(..)(..)(....)', data)
+        validar_data = re.search(r'(..)/(..)/(....)', data)
 
         # Se a data digitada passar na validação
         if validar_data:
             # Dados digitando são inseridos no banco de dados
-            self.banco.inserir_registro(VIN=vin, MODEL=model, PRODUTO=produto, ANOFABRICACAO=anofabricacao, CODCONTA=codconta, DESCRCONTA=descconta, CPF_CNPJ=cpf_cnpj, CLIENTE=cliente, CEP=cep, CIDADE=cidade, UF=uf, DDD=ddd, TELEFONE=telefone, POSSE=posse, DATA=data)
+            self.banco.inserir_registro(vin=vin, model=model, data=data, produto=produto, anofabricacao=anofabricacao, codconta=codconta, descrconta=descrconta, cpf_cnpj=cpf_cnpj, cliente=cliente, cep=cep, cidade=cidade, uf=uf, ddd=ddd, telefone=telefone, posse=posse)
 
             # Coletando a ultima rowid que foi inserida no banco.
             rowid = self.banco.consultar_ultimo_rowid()[0]
 
             # Adicionando os novos dados no treeview.
-            self.treeview.insert('', 'end', text=rowid, values=(vin, model, produto, anofabricacao, codconta, descconta, cpf_cnpj, cliente, cep, cidade, uf, ddd, telefone, posse, data))
+            self.treeview.insert('', 'end', text=rowid, values=(vin, model, produto, anofabricacao, codconta, descrconta, cpf_cnpj, cliente, cep, cidade, uf, ddd, telefone, posse, data))
         else:
             # Caso a data não passe na validação é exibido um alerta.
-            messagebox.showerror('Erro', 'Padrão de data incorreto, utilize dd/mm/yyyy')
+            messagebox.showerror('Erro', 'Padrão de data incorreto, utilize dd/mm/yyyy') 
 
     def excluir_registro(self):
         # Verificando se algum item está selecionado.
